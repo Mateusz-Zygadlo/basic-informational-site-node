@@ -2,22 +2,38 @@ const http = require('http');
 const fs = require('fs');
 const url = require('url');
 
-const server = http.createServer((req, res) => {
-    const q = url.parse(req.url, true);
-    const filename = '.' + q.pathname;
-
-    fs.readFile(filename, (err, data) => {
+const renderPage = (pathname, res) => {
+    fs.readFile(pathname, null, (err, data) => {
         if(err){
-            res.writeHead(404, {'Content-Type': 'text/html'});
-
-            return res.end('<h1>404 Not Found</h1>');
+            res.writeHead(404);
+            res.write('404 mistake')
+        }else{
+            res.write(data);
         }
 
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        res.write(data);
-
-        return res.end();
+        res.end();
     })
+}
+
+const server = http.createServer((req, res) => {
+    const filename = url.parse(req.url).pathname;
+    res.writeHead(200, {"Content-Type": "text/html"})
+
+    switch(filename){
+        case '/': 
+            renderPage('./index.html', res);
+            break;
+        case '/about':
+            renderPage('./about.html', res);
+            break;
+        case '/contact-me':
+            renderPage('./contact-me.html', res);
+            break;
+        default: 
+            renderPage('./404.html', res);
+            break;
+    }
+    
 })
 
 const PORT = process.env.PORT || 8080;
