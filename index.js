@@ -1,6 +1,7 @@
-const http = require('http');
+const express = require('express');
+const app = express();
 const fs = require('fs');
-const url = require('url');
+const port = 8000;
 
 const renderPage = (pathname, res) => {
     fs.readFile(pathname, null, (err, data) => {
@@ -15,27 +16,22 @@ const renderPage = (pathname, res) => {
     })
 }
 
-const server = http.createServer((req, res) => {
-    const filename = url.parse(req.url).pathname;
-    res.writeHead(200, {"Content-Type": "text/html"})
-
-    switch(filename){
-        case '/': 
-            renderPage('./index.html', res);
-            break;
-        case '/about':
-            renderPage('./about.html', res);
-            break;
-        case '/contact-me':
-            renderPage('./contact-me.html', res);
-            break;
-        default: 
-            renderPage('./404.html', res);
-            break;
-    }
-    
+app.get('/', (req, res) => {
+    renderPage('./index.html', res);
 })
 
-const PORT = process.env.PORT || 8080;
+app.get('/about', (req, res) => {
+    renderPage('./about.html', res);
+})
 
-server.listen(PORT, () => console.log('working'))
+app.get('/contact-me', (req, res) => {
+    renderPage('./contact-me.html', res);
+})
+
+app.get('/*', (req, res) => {
+    renderPage('./404.html', res);
+})
+
+app.listen(port, () => {
+    console.log(`App listen in port ${port}`);
+})
